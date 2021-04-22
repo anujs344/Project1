@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
-use App\Models\Registration;
+use App\Models\registration;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 
@@ -14,41 +14,38 @@ class LoginController extends Controller
             'Email' => 'required|email',
             'Password' => 'required'
         ],[       
-            'Email.required' => 'Cannot Be Empty',
-            'Email.email' => 'Invalid Email',
+            'Email.required' => 'Cannot Be Empty','Email.email' => 'Invalid Email',
             'Password.required' => 'Cannot Be Empty'
             ]);
     
         $data = $req->input();
-        $val  = Registration::where('Email','=',$data['Email'])->exists();
-        $alldata = Registration::where('Email', '=',$data['Email'])->first();
+        $val  = registration::where('Email','=',$data['Email'])->exists();
+        $alldata = registration::where('Email', '=',$data['Email'])->get()->first();
         if($val == 0)
         {
             $req->validate([
-                'Email' => 'unique:Registrations'
+                'Email' => 'unique'
             ],[
                 'Email.unique' => 'Invalid Email'
             ]);
-            $req->session()->flash('FalseEmail','Invalid Email');
-            return redirect('login');     
+            // $req->session()->flash('FalseEmail','Invalid Email');
+            // return redirect('login');     
          }
         else
         {
             if(Hash::check($data['Password'], $alldata['Password']))
             {
                 // $User_Details = Registration::where('Id', '=', $alldata['Id']);
-                $req->session()->put('Login_Details',['Login_Fname' => $alldata['FirstName'],
-                                                      'Login_LName' => $alldata['LastName'],
-                                                       'Login_Email' => $alldata['Email'],
-                                                       'Login_CollegeName' => $alldata['CollegeName'],
-                                                       'Login_Phone' => $alldata['Phone'],
-                                                       'Login_ID' => $alldata['Id']
-                                                        ]);
+                $req->session()->put('Login_Details',$alldata);
                 return redirect('profile');
             }
-        //     else{
-        //         return redirect('login');
-        //     }
+            else{
+                $req->validate([
+                    'Password' => 'unique:Registrations:Email'
+                ],[
+                    'Password.unique' => 'Incorrect Password'
+                ]);
+            }
             
         }
         
