@@ -19,37 +19,38 @@ use App\Http\Controllers\ContacusController;
 Route::get('/', function () {
     return view('front');
 });
-Route::view('front', 'front');
-/*<-------------------connecting front page with login------>*/
-Route::get('login', function(){
-    if(session()->has('Login_ID'))
+// Route for register page
+Route::view('register', 'Register');
+Route::post('register',[RegisterController::class,'getData']);
+
+// Route for Login page
+Route::get('login',function()
+{
+    if(session()->has('Login_Details'))
     {
         return redirect('profile');
     }
     return view('login');
 });
-Route::post('login', [LoginController::class,'GetData']);
-/*<---------- coonecting login with register----------->*/
-Route::view('Register','Register');
-Route::post('Register',[RegisterController::class,'getData']);
+Route::post('login',[LoginController::class,'GetData']);
 
-Route::get('profile',function()
-{
+//Route for profile page
+Route::get('profile',function(){
     if(session()->has('Login_Details'))
     {
         return view('profile');
     }
-    else
-    {
-       return redirect('login');
-    }
+    return redirect('login');
 });
 
+//for logouting the page
 Route::get('logout',function(){
-    if(session()->has('Login_ID'))
+    if(session()->has('Login_Details'))
     {
-        session()->pull('Login_ID');
+        session()->pull('Login_Details');
     }
     return redirect('login');
 });
-Route::post('front',[ContactusController::class,'check']);
+
+// front page redirect
+Route::view('front','front');
