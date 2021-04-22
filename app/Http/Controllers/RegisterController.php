@@ -12,32 +12,27 @@ class RegisterController extends Controller
 {
     public function getData(Request $req)
     {
+
         //First checking validation or the wrong inputs
         $req->validate([
                         'Email' => 'required|email',
-                        'FirstName' =>'required|string|min:3|max:20|',
-                        'LastName' => 'required|string|min:3|max:20',
-                        'Phone' => 'required|digits:10',
-                        'Password' => 'required|min:3'
+                        'Name' =>'required|string|min:3|max:20|',
+                        'Password' => 'required|max:8'
             
         ],
         [
                         'Email.required' => 'Required','Email.email' => 'Invalid Email',
-                        'FirstName.required' => 'Required','FirstName.string' => 'Must Be String',
-                        'LastName.required' => 'Required' , 'LastName.string' => 'Must Be String',
-                        'Phone.required' => 'Required' ,'Phone.digits' => 'Must be 10 digit',
-                        'Password.required' => 'Required','Password.min'=>'Weak Password'
+                        'Name.required' => 'Required','Name.string' => 'Must Be String',              
+                        'Password.required' => 'Required','Password.max'=>'Too High'
         ]);
         // Inserting Data into the Register
        $data = $req->input();
-        if(Registration::where('Email', '=', $data['Email'])->exists() && Registration::where('Phone','=',$data['Phone'])->exists())
+        if(Registration::where('Email', '=', $data['Email'])->exists())
         {
             $req->validate([
-                'Email' => 'unique:Registrations',
-                'Phone' => 'unique:Registrations'
+                'Email' => 'unique:Registrations'
             ],[
-                'Email.unique'=>'Email in use',
-                'Phone.unique' => 'Number in use'    
+                'Email.unique'=>'Email in use'    
             ]);
         }
         else
@@ -45,23 +40,15 @@ class RegisterController extends Controller
             DB::table('Registrations')
             ->insert(
                 [
-                    'FirstName' => $data['FirstName'],
-                    'LastName' => $data['LastName'],
+                    'Name' => $data['Name'],
                     'Email' => $data['Email'],
-                    'CollegeName' => $data['CollegeName'],
-                    'Phone' => $data['Phone'],
                     'Password' => Hash::make($data['Password'])
                 ]
                 );
                 
-                $req->session()->flash('Regiatrationstatus','You are now Registered Please Login');
+                // $req->session()->flash('Regiatrationstatus','You are now Registered Please Login');
                 return redirect('login');
 
          }
-    }
-    public function SettingSession(Request $req)
-    {
-        $data = $req->input();
-        $req->session()->put('Session_Id',);
     }
 }
